@@ -141,14 +141,19 @@ namespace Thing
 				response.SetVersion(request.GetVersion());
 				response.SetTokens(request.GetTokens());
 				response.SetMessageID(request.GetMessageID());
+
 				switch (request.GetCode())
 				{
 				case Thing::CoAP::Method::Empty:
 					if (request.GetType() == Thing::CoAP::MessageType::Confirmable)
 					{
+						response.SetTokens({});
 						response.SetType(Thing::CoAP::MessageType::Reset);
 						response.SetCode(Thing::CoAP::Method::Empty);
 						response.SetPayload(NULL, 0);
+
+						std::vector<uint8_t> payload = response.SerializePacket();
+						packetProvider->SendPacket(payload, address, port);
 					}
 					else if (request.GetType() == Thing::CoAP::MessageType::Reset)
 					{
